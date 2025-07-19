@@ -2,5 +2,6 @@
 
 int main()
 {
-    // sqlite3 *table;
+    bool ok = createTable();
+    cout << ok << '\n';
 }

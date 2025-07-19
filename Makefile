@@ -135,7 +135,6 @@ first_extension_found = $(patsubst .%,%,$(or $(firstword $(foreach X,$1,$(filter
 CXXFLAGS ?= -std=c++26 -Wall -Werror
 # -pedantic -fsanitize=address,leak,null,bounds,object-size,pointer-overflow,undefined -fanalyzer -Wno-unused-variable -Wstrict-aliasing'
 #LDFLAGS += -lrt -ldl -lpthread -lm -lz -ltinfo
-LDFLAGS += -lsqlite3
 
 CURRENT_MAKEFILE = $(firstword $(MAKEFILE_LIST))
 
@@ -301,7 +300,7 @@ $(CXX_PROGS): $(CONVLIB_FILE)
 
 # To create an executable program is called: 'Linking'.
 $(CXX_PROGS): METHOD = Link       
-$(CXX_PROGS): LDFLAGS += -L. -l$(CONVLIB)
+$(CXX_PROGS): LDFLAGS += -L. -l$(CONVLIB) -lsqlite3
 
 $(CXX_OBJECTS): METHOD = Compile    
 $(CXX_OBJECTS): INPUTS = $(filter %.$(CXX_SOURCE_EXTENSION),$^)
