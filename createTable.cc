@@ -15,7 +15,7 @@ bool createTable()
     string sqlCommand = 
         "CREATE TABLE IF NOT EXISTS Vault (\n"
         "    Website varchar(255),\n"
-        "    UsernameOrEmail varchar(255),\n"
+        "    UserIdentifier varchar(255),\n"
         "    Password varchar(255)\n"
         ");";
 
