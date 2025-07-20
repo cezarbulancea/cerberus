@@ -3,36 +3,39 @@
 bool createTable()
 {
     sqlite3 *table;
-                                       // Open the database
-    int openingFlag = sqlite3_open("vault.db", &table);
-
-    if (openingFlag != SQLITE_OK)
+                                       // Open (or create) the database
+    if (sqlite3_open("vault.db", &table) != SQLITE_OK)
     {
-        cerr << "Failed to open the database: " << sqlite3_errmsg(table) << '\n';
+        cerr << "Failed to open the database: " 
+             << sqlite3_errmsg(table) << '\n';
+        sqlite3_close(table);
         return 1;
     }
 
-    string sqlCommand = 
+    string sqlCommand =                // SQL command to create the table
         "CREATE TABLE IF NOT EXISTS Vault (\n"
         "    Website varchar(255),\n"
         "    UserIdentifier varchar(255),\n"
         "    Password varchar(255)\n"
         ");";
 
-    char *errmsg = 0;
-    int executionFlag = sqlite3_exec(table, sqlCommand.c_str(), 0, 0, &errmsg);
+    char *errmsg = 0;                  // Execute the SQL command
+    int returnCode = sqlite3_exec(table, sqlCommand.c_str(), 0, 0, &errmsg);
 
-    if (executionFlag != SQLITE_OK)
+    if (returnCode != SQLITE_OK)
     {
-        cerr << "Failed to create the database: " << sqlite3_errmsg(table) << '\n';
+        cerr << "Failed to create the database: " 
+             << (errmsg ? errmsg : sqlite3_errmsg(table)) << '\n';
+                                       // Free the error message 
+        sqlite3_free(errmsg);          // allocated by SQLite 
+        sqlite3_close(table);
         return 1;
     }
 
-    int closingFlag = sqlite3_close(table);
-
-    if (closingFlag != SQLITE_OK)
+    if (sqlite3_close(table) != SQLITE_OK)
     {
-        cerr << "Failed to close database: " << sqlite3_errmsg(table) << '\n';
+        cerr << "Failed to close database: " 
+             << sqlite3_errmsg(table) << '\n';
         return 1;
     }
 
