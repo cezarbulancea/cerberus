@@ -8,6 +8,3 @@
 #include "vault/vault.hh"
 
 using namespace std;
-
-bool add(std::string const &website, std::string const &userIdentifier, 
-         size_t length);

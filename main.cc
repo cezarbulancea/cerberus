@@ -12,4 +12,6 @@ int main()
         "4. LIST all the entries in the database.\n";
     
     cout << welcomeString;
+
+    vault.add("reddit.com", "cezarbulancea", 20);
 }
