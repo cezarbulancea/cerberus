@@ -13,5 +13,5 @@ int main()
     
     cout << welcomeString;
 
-    vault.add("reddit.com", "cezarbulancea", 20);
+    //vault.add("reddit.com", "cezarbulancea", 20);
 }

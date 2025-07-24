@@ -22,7 +22,7 @@ void Vault::ensureSchema()
     if (sqlite3_exec(d_table, sqlCommand.c_str(), 
                      nullptr, nullptr, &errmsg) != SQLITE_OK || 
         sqlite3_exec(d_table, sqlMeta.c_str(), 
-                    nullptr, nullptr, &errmsg) != SQLITE_OK)
+                     nullptr, nullptr, &errmsg) != SQLITE_OK)
     {
         string const errorMessage = errmsg ? errmsg : sqlite3_errmsg(d_table);
                                        // Free the error message 

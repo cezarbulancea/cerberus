@@ -40,6 +40,8 @@ class Vault
         void deriveSessionKey();       // Argon2-id
         std::vector<std::uint8_t> loadOrCreateSalt();
         std::string hiddenPrompt(std::string const &prompt);
+        
+        void wipeKey();
 };
 
 #endif

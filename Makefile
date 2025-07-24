@@ -300,7 +300,7 @@ $(CXX_PROGS): $(CONVLIB_FILE)
 
 # To create an executable program is called: 'Linking'.
 $(CXX_PROGS): METHOD = Link       
-$(CXX_PROGS): LDFLAGS += -L. -l$(CONVLIB) -lsqlite3
+$(CXX_PROGS): LDFLAGS += -L. -l$(CONVLIB) -lsqlite3 -lsodium
 
 $(CXX_OBJECTS): METHOD = Compile    
 $(CXX_OBJECTS): INPUTS = $(filter %.$(CXX_SOURCE_EXTENSION),$^)
