@@ -19,12 +19,12 @@ void Vault::ensureSchema()
         ");";
 
     char *errmsg = nullptr;            // Execute the SQL commands
-    if (sqlite3_exec(d_table, sqlCommand.c_str(), 
+    if (sqlite3_exec(d_db, sqlCommand.c_str(), 
                      nullptr, nullptr, &errmsg) != SQLITE_OK || 
-        sqlite3_exec(d_table, sqlMeta.c_str(), 
+        sqlite3_exec(d_db, sqlMeta.c_str(), 
                      nullptr, nullptr, &errmsg) != SQLITE_OK)
     {
-        string const errorMessage = errmsg ? errmsg : sqlite3_errmsg(d_table);
+        string const errorMessage = errmsg ? errmsg : sqlite3_errmsg(d_db);
                                        // Free the error message 
         sqlite3_free(errmsg);          // allocated by SQLite 
         throw runtime_error("Schema error: " + errorMessage);

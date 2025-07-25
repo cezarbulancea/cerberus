@@ -13,7 +13,7 @@
 
 class Vault
 {
-    sqlite3 *d_table;
+    sqlite3 *d_db;
     std::array<std::uint8_t, crypto_aead_xchacha20poly1305_IETF_KEYBYTES> d_key;
     bool d_keyValid = false;
 

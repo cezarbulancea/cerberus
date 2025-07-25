@@ -4,11 +4,11 @@ Vault &Vault::operator=(Vault &&tmp)
 {
     if (this != &tmp)
     {
-        if (d_table)
-            sqlite3_close(d_table);
+        if (d_db)
+            sqlite3_close(d_db);
 
-        d_table = tmp.d_table;
-        tmp.d_table = nullptr;
+        d_db = tmp.d_db;
+        tmp.d_db = nullptr;
     }
 
     return *this;

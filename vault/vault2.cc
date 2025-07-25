@@ -2,7 +2,7 @@
 
 Vault::Vault(Vault &&tmp)
 :
-    d_table(tmp.d_table)
+    d_db(tmp.d_db)
 {
-    tmp.d_table = nullptr;
+    tmp.d_db = nullptr;
 }
