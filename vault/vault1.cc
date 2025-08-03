@@ -9,7 +9,5 @@ Vault::Vault(string const &filename)
 
     openDatabase(filename);          
     ensureSchema();
-
-    deriveSessionKey();
-    d_keyValid = true;
+    setupOrUnlock();
 }

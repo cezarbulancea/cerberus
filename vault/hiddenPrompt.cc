@@ -49,7 +49,6 @@ string Vault::hiddenPrompt(string const &prompt)
 
     string password;
     getline(cin, password);
-
                                        // restore terminal
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldAttr);
     return password;

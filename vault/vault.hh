@@ -37,10 +37,11 @@ class Vault
     private:
         void openDatabase(std::string const &filename);
         void ensureSchema();
-        void deriveSessionKey();       // Argon2-id
+        void deriveSessionKey(std::string const &master);      
         std::vector<std::uint8_t> loadOrCreateSalt();
         std::string hiddenPrompt(std::string const &prompt);
-        
+                                       // setup a new vault or 
+        void setupOrUnlock();          // unlock an existent one
         void wipeKey();
 };
 
