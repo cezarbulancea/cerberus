@@ -1,4 +1,3 @@
-
 # Detect the OS using uname
 UNAME_S := $(shell uname -s)
 
@@ -126,15 +125,10 @@ rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(su
 # Simply list all files we can find.
 ALL_FILES := $(patsubst ./%,%,$(call rwildcard,.,*))
 
-# We recognize files by their extensions, because file magic doesn't always
-# work to distinguish C++ from C.
-
 # Autodetection of file extensions.
 first_extension_found = $(patsubst .%,%,$(or $(firstword $(foreach X,$1,$(filter %.$X,$(suffix $(ALL_FILES))))),$(firstword $1)))
 
 CXXFLAGS ?= -std=c++26 -Wall -Werror
-# -pedantic -fsanitize=address,leak,null,bounds,object-size,pointer-overflow,undefined -fanalyzer -Wno-unused-variable -Wstrict-aliasing'
-#LDFLAGS += -lrt -ldl -lpthread -lm -lz -ltinfo
 
 CURRENT_MAKEFILE = $(firstword $(MAKEFILE_LIST))
 
@@ -151,9 +145,6 @@ CXX_INTERNAL_HEADER_EXTENSION ?= $(call first_extension_found, ihh ihpp IH ih)
 CXX_PCH_EXTENSION ?= $(CXX_INTERNAL_HEADER_EXTENSION).gch
 CXX_OBJECT_EXTENSION ?= $(CXX_SOURCE_EXTENSION).o
 DEP_EXTENSION ?= dep
-
-FLEXCXX_SCANNERSPEC_EXTENSION ?= $(call first_extension_found, fc++ fcpp fcxx flexc++ flexcpp flexcxx )
-BISONCXX_PARSERSPEC_EXTENSION ?= $(call first_extension_found, bc++ bcpp bcxx bisonc++ bisoncpp bisoncxx )
 
 # By default, this Makefile does not echo recipe commands. But it can.
 # Try: 'make VERBOSE=1'
@@ -178,9 +169,6 @@ SHAREDLIB_FILE = lib$(SHAREDLIB).$(SHAREDLIB_EXTENSION)
 
 # Directory where dependencies are stored.
 DEPDIR ?= generated_deps
-
-FLEXCXX ?= flexc++
-BISONCXX ?= bisonc++
 
 ## No editing below this line unless you know what you're doing. ##
 
@@ -258,21 +246,12 @@ CXX_INTERNAL_HEADERS := $(filter %.$(CXX_INTERNAL_HEADER_EXTENSION),$(ALL_FILES)
 CXX_PRECOMPILED_HEADERS := $(CXX_INTERNAL_HEADERS:%=%.gch)
 CXX_PCH_DEPS := $(call deps_of,$(CXX_INTERNAL_HEADERS))
 
-FLEXCXX_SCANNERSPECS := $(filter %.$(FLEXCXX_SCANNERSPEC_EXTENSION),$(ALL_FILES))
-FLEXCXX_DEPS := $(call deps_of,$(FLEXCXX_SCANNERSPECS))
-
-BISONCXX_PARSERSPECS := $(filter %.$(BISONCXX_PARSERSPEC_EXTENSION),$(ALL_FILES))
-BISONCXX_DEPS := $(call deps_of,$(BISONCXX_PARSERSPECS))
-
 ###
 
-ALL_DEPS = $(CXX_SOURCE_DEPS) $(CXX_PCH_DEPS) $(FLEXCXX_DEPS) $(BISONCXX_DEPS)
+ALL_DEPS = $(CXX_SOURCE_DEPS) $(CXX_PCH_DEPS) 
 
 # Could be used to suppress all built-in rules.
 .SUFFIXES:
-
-# Suppress making .o from .cc, because we only want to create .cc.o
-#%.o: %.$(CXX_SOURCE_EXTENSION)
 
 define RUN-CPPCOMPILE
 	$(ECHO_ACTION)
@@ -317,13 +296,10 @@ $(CXX_PRECOMPILED_HEADERS): CXXFLAGS += -x c++-header
 
 # When a source file is deleted, the object files may linger. Let Make warn then.
 GENERATED_EXTENSIONS = $(CXX_OBJECT_EXTENSION) $(CONVLIB_EXTENSION) $(SHAREDLIB_EXTENSION) $(CXX_PCH_EXTENSION) $(DEP_EXTENSION)
-#$(info generated extensions: $(GENERATED_EXTENSIONS))
 KNOWN_GENERATED_FILES = $(CONVLIB_FILE) $(SHAREDLIB_FILE) $(CXX_OBJECTS) $(CXX_PRECOMPILED_HEADERS) $(ALL_DEPS)
-#$(info known generated: $(KNOWN_GENERATED_FILES))
 EVER_GENERATED_FILES = $(filter $(addefix %.,$(GENERATED_EXTENSIONS)),$(ALL_FILES))
-#$(info ever generated: $(EVER_GENERATED_FILES))
 UNKNOWN_GENERATED_FILES = $(filter-out $(KNOWN_GENERATED_FILES),$(EVER_GENERATED_FILES))
-#$(info unknown generated: $(UNKNOWN_GENERATED_FILES))
+
 ifneq (,$(UNKNOWN_GENERATED_FILES))
     $(warning $(NEWLINE)Warning: Make may once have generated, but cannot update any more the following files:$(NEWLINE)$(NEWLINE)  $(UNKNOWN_GENERATED_FILES)$(NEWLINE)$(NEWLINE)Perhaps their sources do not exist any more. Consider cleaning them up.)
 endif
@@ -393,153 +369,13 @@ check: all $(patsubst %,%_tested,$(CXX_TESTPROGS))
 # Any files created by failed recipes should be deleted.
 .DELETE_ON_ERROR:
 
-
-# If asked explicitly, we can make a metadata.txt... maybe.
-ifneq (,$(filter %metadata.txt,$(MAKECMDGOALS)))
-
-    # The requested metadata.txt with full path.
-    METADATA_TXT = $(filter %metadata.txt,$(MAKECMDGOALS))
-
-    # Only create metadata.txt here or in parent.
-    #$(or $(filter metadata.txt,$(METADATA_TXT)),$(filter ../metadata.txt,$(METADATA_TXT)),$(error Will only create metadata.txt in current or parent directory, and nowhere else.))
-
-    $(METADATA_TXT): TEMPLATE = $(METADATA_TXT_TEMPLATE)
-    $(METADATA_TXT):
-	$(QUIET) printf '$(subst $(NEWLINE),\n,$(TEMPLATE))' >> "$(@)"
-	@echo "$(@) made from template:"
-	@echo
-	@cat $@
-	@echo
-	@echo "Please edit it to replace the bogus information in there."
-	@echo
-	@echo "The metadata.txt tells us what set this is, who worked on the exercises, and who should rate them."
-	@echo "Change at least the set number and the authors."
-	@echo "If this is your first submission, leave the rater blank."
-	@echo "If it is the second, specify the initials of whoever rated the first attempt."
-
-endif
-
-# If asked explicitly, we can make an initial order.txt.
-ifneq (,$(filter %order.txt,$(MAKECMDGOALS)))
-
-    ORDER_TXTS = $(filter %order.txt,$(MAKECMDGOALS))
-
-    $(ORDER_TXTS): TEMPLATE = $(ORDER_TXT_TEMPLATE)
-    $(ORDER_TXTS): %order.txt: clean
-	$(QUIET) printf '$(subst $(NEWLINE),\n,$(TEMPLATE))' >> $(@)
-	@echo "$(@) made from template:"
-	@echo
-	@cat $@
-	@echo
-	@echo "Please edit it, because an auto-generated one is almost certainly wrong."
-	@echo "A '-' prefix means the file should be in the zip, but should not be shown."
-	@echo "Per class we prefer header files, then internal headers, then sources."
-	@echo "Per project we prefer calling order."
-	@echo
-	@echo "Please do not submit executables and other binaries."
-	@echo "You may therefore want to make clean before making order.txt."
-
-endif
-
-# If we're in a set directory, and if asked explicitly, we can create a zip.
-ifneq (,$(filter zip,$(MAKECMDGOALS)))
-
-    ZIPFILE = $(notdir $(CURDIR)).zip
-    METADATAS = $(filter %metadata.txt,$(ALL_FILES))
-
-    ifeq (0,$(words $(METADATAS)))
-        # No metadata.txt found.
-        ifeq (../metadata.txt,$(wildcard ../metadata.txt))
-            $(info You asked for a zip, but there is no metadata.txt in the tree.)
-            $(info However, there is one in the parent directory.)
-            $(info Assuming that we are in an exercise directory and the parent directory)
-            $(info contains the set, you can still create the zip.)
-            $(info Tell make to switch directories and still use the current makefile)
-            $(info with the command:)
-            $(info     make -C .. -f $(notdir $(CURDIR))/$(notdir $(CURRENT_MAKEFILE)) zip)
-            $(error No metadata.txt in current dir. Perhaps we are not in a set directory.)
-        else
-            $(info No metadata.txt found in the tree, nor in the parent dir.)
-            $(info Depending on whether we are in a set or an exercise directory, you can)
-            $(info 'make metadata.txt' or 'make ../metadata.txt' and edit the example.)
-            $(error No metadata.txt found.)
-        endif
-    else
-    ifeq (1,$(words $(METADATAS)))
-        # One metadata.txt found.
-        ifneq (metadata.txt,$(filter metadata.txt,$(METADATAS)))
-            $(info A metadata.txt was found: $(METADATAS))
-            $(info but it is in a subdir.)
-            $(info We need to be in the top-level directory of the exercise set to create the zip.)
-            $(error Metadata.txt in unexpected directory.)
-        endif
-            # This is good: metadata.txt found in current dir.
-    else
-        # Multiple metadata.txts found.
-        ifeq (metadata.txt,$(filter metadata.txt,$(METADATAS)))
-            $(warn Multiple metadata.txt files found: $(METADATAS))
-            $(info There is one in the current directory.)
-            $(info Proceeding anyway on the assumption we are in a set directory.)
-        else
-            $(info Multiple metadata.txt files found in the tree, but none in the current directory.)
-            $(info We have no idea how to handle this.)
-            $(error Multiple metadata.txt but not in the right place.)
-        endif
-    endif
-    endif
-
-    DIRECT_SUBDIRS = $(patsubst %/,%,$(filter-out generated_deps/,$(wildcard */)))
-    NUMERIC_DIRECT_SUBDIRS = $(shell echo $(DIRECT_SUBDIRS)|grep -Eo '[0-9]{1,2}')
-
-    ifneq ($(DIRECT_SUBDIRS),$(NUMERIC_DIRECT_SUBDIRS))
-
-    $(info You asked for a zip. Assuming we are in a set directory,)
-    $(info the exercises should be in the top-level subdirs, and we found these:)
-    $(info $(DIRECT_SUBDIRS))
-    $(info However, exercise dirs should have numerical names, and not all of them do.)
-    $(info (Please note that any 'generated_deps' is not the problem.))
-    $(error Other than exercise dirs present. (Perhaps we are not in a set dir.))
-
-    endif
-
-    # Zip is simply an alias for the zipfile.
-    zip: $(ZIPFILE)
-
-    # Require 'all' to check that everything compiles.
-    $(ZIPFILE): metadatatxt_check build_check ordertxt_check
-	echo "To be done: create $(@)"
-	zip $(ZIPFLAGS) $(ZIPFILE) $(ORDER_TXTS) $(FILES_MENTIONED_IN_ORDER_TXTS) metadata.txt
-
-    .PHONY: metadatatxt_check build_check ordertxt_check
-
-    # Here's why we only create zips from the set dir.
-    # If something doesn't compile, we don't build the zip.
-    build_check: all
-	@echo "Exercises are buildable."
-
-    # Every subdir must have an order.txt.
-    # Every file in an order.txt must contain only file names that exist.
-    ORDER_TXTS = $(patsubst %,%/order.txt,$(DIRECT_SUBDIRS))
-    FILES_MENTIONED_IN_ORDER_TXTS = $(foreach OTXT,$(ORDER_TXTS),$(foreach LINE,$(patsubst -%,%,$(filter-out -,$(shell cat $(OTXT)))),$(dir $(OTXT))$(LINE)))
-    ordertxt_check: $(FILES_MENTIONED_IN_ORDER_TXTS)
-	@echo "Files mentioned in order.txt files exist."
-
-    metadatatxt_check:
-	@if grep -q "John Doe" metadata.txt || grep -q 'Set 0' metadata.txt ; then echo "metadata.txt still contains bogus info." ; false ; fi
-	@echo "metadata.txt exists and was edited."
-
-endif
-
 help:
 	@printf '$(subst $(NEWLINE),\n,$(HELP_TEXT))'
 
 # Give Make no way to make hooks.mk. User has to create it.
 hooks.mk:
 
-###  Below follow some templates that will create source and header files. ###
-
-# The program source template shares its suffix with other sources.
-# So we use this trick: 'make foo.cc:program' will create a program 'foo.cc'.
+### Below follow some templates that will create source and header files. ###
 
 # Add proper extension if there was none, and remove e.g. ':program'.
 ACTUAL_FILE = $(addsuffix .$(EXTENSION),$(patsubst %.$(EXTENSION),%,$*))
@@ -551,19 +387,12 @@ ACTUAL_FILE = $(addsuffix .$(EXTENSION),$(patsubst %.$(EXTENSION),%,$*))
 	$(QUIET) if test -e "$(ACTUAL_FILE)" ; then echo "$(ACTUAL_FILE) already exists." ; false ; fi
 	$(QUIET) printf '$(subst $(NEWLINE),\n,$(TEMPLATE))' >> "$(ACTUAL_FILE)" && echo "$(ACTUAL_FILE) made from template"
 
-# Not used. Using just extensions is shorter.
-#%\:cxx_class: %\:cxx_header %\:cxx_internal_header
-
-# Only files that are explictly mentioned on the command line and that don't
-#exist yet, can be created. Use like: make bar.hh
-
 # Header template. We use a UUID to keep the header guard unique.
 define CXX_HEADER_TEMPLATE
 #ifndef def_$(UUID)_$(HID)_$(CXX_HEADER_EXTENSION)
 #define def_$(UUID)_$(HID)_$(CXX_HEADER_EXTENSION)
 #endif //def_$(UUID)_$(HID)_$(CXX_HEADER_EXTENSION)\n
 endef
-
 
 # To detect (internal) headers that already exist in the dir.
 include-headers-in-same-dir = $(foreach HEADER,$(wildcard $(@D)/*.$(CXX_HEADER_EXTENSION)),#include "$(notdir $(HEADER))"\n)
@@ -579,7 +408,6 @@ endef
 # Ordinary source template
 define CXX_SOURCE_TEMPLATE
 $(include-internal-headers-in-same-dir)
-
 
 endef
 
@@ -629,84 +457,6 @@ int handle_exceptions(std::exception_ptr excp)
 
 endef
 
-# Scanner (tokenizer) specification template.
-define FLEXCXX_SCANNERSPEC_TEMPLATE
-
-//%%baseclass-header = "filename"
-//%%case-insensitive
-//%%class-header = "filename"
-//%%class-name = "className"
-//%%debug
-//%%filenames = "basename"
-//%%implementation-header = "filename"
-//%%input-implementation = "sourcefile"
-//%%input-interface = "interface"
-//%%interactive
-//%%lex-function-name = "funname"
-//%%lex-source = "filename"
-//%%no-lines
-//%%namespace = "identifer"
-//%%print-tokens
-//%%s start-conditions
-//%%skeleton-directory = "pathname"
-//%%startcondition-name = "startconditionName"
-//%%target-directory = "pathname"
-//%%x miniscanners
-
-%%%%
-
-.|\\n   return 0x100;
-
-endef
-
-# Parser specification (grammar) template:
-define BISONCXX_PARSERSPEC_TEMPLATE
-//  With multiple parsers in one project, give each one its own namespace.
-// %%namespace pns
-
-// %%baseclass-preinclude: specifying a header included by the baseclass
-// %%class-name: defining the name of the parser class
-// %%debug: adding debugging code to the parse() member
-
-//  Flexc++-generated default. Adjust to needs.
-%%scanner Scanner.h
-
-// %%baseclass-header: defining the parser base class header
-// %%class-header: defining the parser class header
-// %%filenames: specifying a generic filename
-// %%implementation-header: defining the implementation header
-// %%parsefun-source: defining the parse() function sourcefile
-// %%target-directory: defining the directory where files must be written
-// %%token-path: defining the path of the file containing the Tokens_ enumeration
-
-// %%polymorphic INT: int; STRING: std::string; 
-//               VECT: std::vector<double>
-
-%%token TERMINAL
-
-%%%%
-
-nonterminal:
-TERMINAL
-;
-
-endef
-
-# Metadata.txt template (but not by extension, so not in TEMPLATABLE_GOALS
-define METADATA_TXT_TEMPLATE
-Set: Set 0
-Authors: John Smith, Jane Doe
-Rater: AZ
-
-endef
-
-# Order.txt template (also not in TEMPLATABLE_GOALS)
-define ORDER_TXT_TEMPLATE
-
-$(foreach FILE,$(patsubst /%,%,$(patsubst $(@D)/%,%,$(call rwildcard,$(@D)/,*))),-$(FILE)$(NEWLINE))
-
-endef
-
 # Giving Make a recipe to create any file 'foo.cc' from thin air is dangerous,
 # because it would do so whenever it needs a file 'foo'. So we allow it to
 # create only files that are explicitly mentioned on the command line, and
@@ -725,8 +475,6 @@ ifneq (,$(TEMPLATABLE_GOALS))
     %.$(CXX_HEADER_EXTENSION): TEMPLATE = $(CXX_HEADER_TEMPLATE)
     %.$(CXX_HEADER_EXTENSION): UUID := $(subst -,_,$(shell $(UUIDGEN)))
     %.$(CXX_HEADER_EXTENSION): HID = $(basename $(notdir $@))
-    %.$(FLEXCXX_SCANNERSPEC_EXTENSION): TEMPLATE = $(FLEXCXX_SCANNERSPEC_TEMPLATE)
-    %.$(BISONCXX_PARSERSPEC_EXTENSION): TEMPLATE = $(BISONCXX_PARSERSPEC_TEMPLATE)
 
     $(TEMPLATABLE_GOALS):
 	printf '$(subst $(NEWLINE),\n,$(TEMPLATE))' >> $@
@@ -735,11 +483,6 @@ endif
 
 # Generated dependencies are enabled by default. To suppress: make DEP=no
 ifeq ($(USE_GENERATED_DEPENDENCIES),true)
-
-    # Make can be told to include generated dependency files.
-    # But it cannot be told to include such dependencies only for sources that
-    # actually must be compiled. So we simply always include all dependencies.
-    # (With C++ Modules, we'll need to anyway.)
 
     # Prevent dependency generation if MAKECMDGOALS is non-empty and consists
     # only of targets that don't need dependencies.
@@ -775,34 +518,6 @@ ifeq ($(USE_GENERATED_DEPENDENCIES),true)
 	$(ECHO_ACTION)
 	$(QUIET) $(CXX) $(CPPFLAGS) $(CXXFLAGS) $<
 
-    # Predicting which files flexc++ will generate from a given scanner
-    # specification file is hard. So we simply keep a touchfile and rerun
-    # flexc++ whenever the spec is newer.
-    # We use --target-directory to put generated files in the same directory
-    # as the specification file they were generated from.
-    # This overrides any internal %target-directory directives.
-    $(FLEXCXX_DEPS): METHOD = $(FLEXCXX)    
-    $(FLEXCXX_DEPS): $(call deps_of,%): %
-	$(ECHO_ACTION)
-	$(QUIET) $(FLEXCXX) $(FLEXCXXFLAGS) --target-directory=$(or $(*D),.) $< 
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) touch $@
-
-    # In contrast to flexc++, bisonc++ puts the generated files in the
-    # directory of the parser specification by default. No options needed.
-    $(BISONCXX_DEPS): METHOD = $(BISONCXX)   
-    $(BISONCXX_DEPS): $(call deps_of,%): %
-	$(ECHO_ACTION)
-	$(QUIET) $(BISONCXX) $(BISONCXXFLAGS) $< 
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) touch $@
-    # Note that both bisonc++ and flexc++ are run merely to update the empty
-    # .dep file for inclusion. The files they generate are side effects. The
-    # reason this works is because Make will update includes before handling
-    # any other recipes.
-    # FixMe: why does Make consistently update bisonc++ and flexc++ deps
-    # before source deps?
-
     # Keep deps once we have them.
     .SECONDARY: $(ALL_DEPS)
 
@@ -833,7 +548,6 @@ endef
 # Evaluating the path straightening recipe for all available dirs.
 DIRECTORIES_FOUND = $(sort $(filter-out ./,$(dir $(ALL_FILES:./%=%))))
 $(foreach DIR,$(DIRECTORIES_FOUND), $(eval $(PATH_STRAIGHTENING_RECIPE)))
-#$(foreach DIR,$(DIRECTORIES_FOUND), $(info $(PATH_STRAIGHTENING_RECIPE)))
 
 ### End of Parallel Make measures. ###
 
