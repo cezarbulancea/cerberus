@@ -30,7 +30,8 @@ class Vault
 
         void add(std::string const &website, 
                  std::string const &userIdentifier, size_t length);
-        bool get(std::string const &website, std::string const &userIdentifier);
+        std::string get(std::string const &website, 
+                        std::string const &userIdentifier) const;
         bool erase(std::string const &website, std::string const &userIdentifier);
         void list();
 

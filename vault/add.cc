@@ -4,11 +4,8 @@ void Vault::add(string const &website, string const &userIdentifier,
                 size_t length)
 {
     if (!d_keyValid)
-    {
-        cout << "The vault is locked. If you want to add an entry, you have "
-                "to unlock it first.\n";
-        return;
-    }
+        throw runtime_error("The vault is locked. If you want to add an entry, "
+                            "you have to unlock it first.");
 
     PasswordGenerator generator;       // generate a password of the given length
     string const password = generator.generatePassword(length);
@@ -27,8 +24,8 @@ void Vault::add(string const &website, string const &userIdentifier,
         cipher.data(), &cipherLength,
         reinterpret_cast<unsigned char const *>(password.data()),
         password.size(),
-        nullptr, 0,
-        nullptr,
+        /*ad=*/nullptr, 0,
+        /*nsec=*/nullptr,
         nonce.data(),
         d_key.data()
     );
