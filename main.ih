@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <limits>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <string>
@@ -7,4 +8,11 @@
 #include "passwordGenerator/passwordGenerator.hh"
 #include "vault/vault.hh"
 
-using namespace std;
+using namespace std; 
+                                       // Read a non-empty line, trimming 
+                                       // leading/trailing blanks.
+std::string promptLine(std::string const &message);
+                                       // Asks for site and user; creates a  
+void cmdAdd(Vault &vault);             // password and stores it.
+                                       // Asks for site and user; prints 
+void cmdGet(Vault &vault);             // the decrypted password.

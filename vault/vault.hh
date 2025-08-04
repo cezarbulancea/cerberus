@@ -35,12 +35,13 @@ class Vault
         bool erase(std::string const &website, std::string const &userIdentifier);
         void list();
 
+        std::string hiddenPrompt(std::string const &prompt);
+
     private:
         void openDatabase(std::string const &filename);
         void ensureSchema();
         void deriveSessionKey(std::string const &master);      
         std::vector<std::uint8_t> loadOrCreateSalt();
-        std::string hiddenPrompt(std::string const &prompt);
                                        // setup a new vault or 
         void setupOrUnlock();          // unlock an existent one
         void wipeKey();

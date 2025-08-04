@@ -1,11 +1,31 @@
 #include "main.ih"
 
 int main()
+try
 {
     Vault vault;
 
-    vault.add("reddit.com", "cezarbulancea", 20);
+    for (;;)
+    {
+        cout << "\nCommands:  add   get   quit\n> ";
+        string cmd;
+        if (!(cin >> cmd))
+            break;                     // EOF / Ctrl-D
+                                       // consume newline left by >> 
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    string secret = vault.get("reddit.com", "cezarbulancea");
-    cout << secret << '\n';
+        if (cmd == "add")
+            cmdAdd(vault);
+        else if (cmd == "get")
+            cmdGet(vault);
+        else if (cmd == "quit" || cmd == "exit")
+            break;
+        else
+            cout << "Unknown command.\n";
+    }
+}
+catch (exception const &ex)
+{
+    cerr << "Fatal error: " << ex.what() << '\n';
+    return 1;
 }
