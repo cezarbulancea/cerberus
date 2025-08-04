@@ -1,55 +1,70 @@
 #include "vault.ih"
 
-bool Vault::add(string const &website, string const &userIdentifier, size_t length)
-{                                      // Open (or create) the database
-    if (sqlite3_open("vault.db", &d_db) != SQLITE_OK)
+void Vault::add(string const &website, string const &userIdentifier,
+                size_t length)
+{
+    if (!d_keyValid)
     {
-        cerr << "Failed to open the database: " 
-             << sqlite3_errmsg(d_db) << '\n';
-        sqlite3_close(d_db);
-        return 1;
+        cout << "The vault is locked. If you want to add an entry, you have "
+                "to unlock it first.\n";
+        return;
     }
 
-    PasswordGenerator generator;       // Generate a password of the given length
-    string password = generator.generatePassword(length);
-                                       // Prepare an INSERT statement
-    string sqlCommand =                // with 3 placeholders
-        "INSERT INTO Vault (Website, UserIdentifier, Password)\n"
-        "VALUES (?, ?, ?);";
+    PasswordGenerator generator;       // generate a password of the given length
+    string const password = generator.generatePassword(length);
 
-    sqlite3_stmt *stmt = nullptr;
-    int returnCode = sqlite3_prepare_v2(d_db, sqlCommand.c_str(), -1, &stmt, nullptr);
+    cout << "Your password is: " << password << '\n';
 
-    if (returnCode != SQLITE_OK) 
+    vector<uint8_t> nonce(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
+                                       // 24-byte random nonce
+    randombytes_buf(nonce.data(), nonce.size());    
+                                       // cipher = password + 16-byte tag
+    vector<uint8_t> cipher(password.size() 
+                           + crypto_aead_xchacha20poly1305_ietf_ABYTES);
+
+    unsigned long long cipherLength = 0;
+    crypto_aead_xchacha20poly1305_ietf_encrypt(
+        cipher.data(), &cipherLength,
+        reinterpret_cast<unsigned char const *>(password.data()),
+        password.size(),
+        nullptr, 0,
+        nullptr,
+        nonce.data(),
+        d_key.data()
+    );
+                                       // split tag from ciphertext for storage
+    size_t tagLength = crypto_aead_xchacha20poly1305_ietf_ABYTES;
+    vector<uint8_t> tag(cipher.end() - tagLength, cipher.end());
+    cipher.resize(cipher.size() - tagLength);
+
+    sqlite3_stmt *statement = nullptr;
+    string const addValuesSql = 
+        "INSERT INTO Vault (Website, UserIdentifier, nonce, tag, ciphertext) "
+        "VALUES (?1, ?2, ?3, ?4, ?5) "
+        "ON CONFLICT(Website, UserIdentifier) DO UPDATE SET "
+        "  nonce=excluded.nonce, "
+        "  tag=excluded.tag, "
+        "  ciphertext=excluded.ciphertext;";
+
+    if (sqlite3_prepare_v2(d_db, addValuesSql.c_str(), 
+                           -1, &statement, nullptr) != SQLITE_OK)
+        throw runtime_error("SQLite prepare failed: " + string(sqlite3_errmsg(d_db)));
+
+    sqlite3_bind_text (statement, 1, website.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text (statement, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement, 3, nonce.data(), nonce.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement, 4, tag.data(), tag.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement, 5, cipher.data(), cipher.size(), SQLITE_TRANSIENT);
+
+    if (sqlite3_step(statement) != SQLITE_DONE)
     {
-        cerr << "Failed to prepare statement: " 
-             << sqlite3_errmsg(d_db) << "\n";
-        sqlite3_close(d_db);
-        return 1;
-    }                                
-                                       // Bind the values into the 3 slots 
-    sqlite3_bind_text(stmt, 1, website.c_str(),        -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 3, password.c_str(),       -1, SQLITE_TRANSIENT);
-
-    if (sqlite3_step(stmt) != SQLITE_DONE) 
-    {
-        cerr << "Execution failed: " 
-             << sqlite3_errmsg(d_db) << "\n";
-        sqlite3_finalize(stmt);
-        sqlite3_close(d_db);
-        return 1;
+        string const message = sqlite3_errmsg(d_db);
+        sqlite3_finalize(statement);
+        throw runtime_error("SQLite insert failed: " + message);
     }
+    sqlite3_finalize(statement);
 
-    sqlite3_finalize(stmt);            // Clean up the prepared statement
-    cout << "Password stored successfully!\n";
-
-    if (sqlite3_close(d_db) != SQLITE_OK)
-    {
-        cerr << "Failed to close database: " 
-             << sqlite3_errmsg(d_db) << '\n';
-        return 1;
-    }
-
-    return 0;
+    sodium_memzero(const_cast<char *>(password.data()), password.size());
+    sodium_memzero(cipher.data(), cipher.size());
+    sodium_memzero(tag.data(), tag.size());
 }

@@ -28,7 +28,7 @@ class Vault
 
         ~Vault();
 
-        bool add(std::string const &website, 
+        void add(std::string const &website, 
                  std::string const &userIdentifier, size_t length);
         bool get(std::string const &website, std::string const &userIdentifier);
         bool erase(std::string const &website, std::string const &userIdentifier);
