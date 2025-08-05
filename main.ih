@@ -1,9 +1,7 @@
 #include <format>
 #include <iostream>
 #include <limits>
-#include <sqlite3.h>
 #include <stdio.h>
-#include <string>
 
 #include "passwordGenerator/passwordGenerator.hh"
 #include "vault/vault.hh"
