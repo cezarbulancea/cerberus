@@ -13,7 +13,7 @@ void Vault::setupOrUnlock()            // and stored in d_key
         sqlite3_step(statement) == SQLITE_ROW)
     {                                  // copy BLOB (includes terminating NUL)
         void const *blob = sqlite3_column_blob (statement, 0);
-        int size = sqlite3_column_bytes(statement, 0);
+        size_t const size = sqlite3_column_bytes(statement, 0);
         verifier.assign(static_cast<char const *>(blob), size);
 
         firstRun = false;              // existing vault confirmed
@@ -34,10 +34,7 @@ void Vault::setupOrUnlock()            // and stored in d_key
                               password1.c_str(), password1.size(),
                               crypto_pwhash_OPSLIMIT_MODERATE,
                               crypto_pwhash_MEMLIMIT_MODERATE) != 0)
-        {
-            wipeKey();                 // clear d_key if any
             throw runtime_error("Verifier generation failed");
-        }
                                        // insert verifier in `meta` table
         size_t const verifierLen = strlen(verifierBuf) + 1; 
         char constexpr insertVerifierSql[] =
@@ -49,7 +46,6 @@ void Vault::setupOrUnlock()            // and stored in d_key
                           SQLITE_TRANSIENT);
         if (sqlite3_step(statement) != SQLITE_DONE)
         {
-            wipeKey();
             string const message = sqlite3_errmsg(d_db);
             sqlite3_finalize(statement);
             throw runtime_error("Storing verifier failed: " + message);
