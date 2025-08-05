@@ -3,9 +3,7 @@
 
 #include <array>
 #include <cstdint>
-#include <cstring>
 #include <sodium.h>
-#include <stdio.h>
 #include <vector>
 
 #include "../dbHandle/dbHandle.hh"
@@ -14,7 +12,7 @@
 class Vault
 {
     DbHandle d_db;
-    std::array<std::uint8_t, crypto_aead_xchacha20poly1305_IETF_KEYBYTES> d_key;
+    std::array<std::uint8_t, crypto_aead_xchacha20poly1305_ietf_KEYBYTES> d_key;
     bool d_keyValid = false;
 
     public:

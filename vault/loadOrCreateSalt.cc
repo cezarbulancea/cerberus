@@ -26,6 +26,8 @@ vector<uint8_t> Vault::loadOrCreateSalt()
     sqlite3_prepare_v2(d_db, sqlInsertSalt.c_str(), -1, &statement, nullptr);
     sqlite3_bind_blob(statement, 1, salt.data(), salt.size(), SQLITE_TRANSIENT);
     sqlite3_step(statement);
+
     sqlite3_finalize(statement);
+    
     return salt;
 }
