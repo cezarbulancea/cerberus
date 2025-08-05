@@ -3,7 +3,7 @@
 int main()
 try
 {
-    Vault vault;
+    Vault vault;                       // create or open vault
 
     for (;;)
     {

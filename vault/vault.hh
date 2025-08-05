@@ -21,10 +21,10 @@ class Vault
         Vault(std::string const &filename = "vault.db");
 
         Vault(Vault const &other) = delete;
-        Vault(Vault &&tmp);
+        Vault(Vault &&tmp) noexcept;
 
         Vault &operator=(Vault const &other) = delete;
-        Vault &operator=(Vault &&tmp);
+        Vault &operator=(Vault &&tmp) noexcept;
 
         ~Vault();
 
