@@ -27,7 +27,7 @@ void Vault::setupOrUnlock()            // and stored in d_key
         string password1 = IOTools::hiddenPrompt("Create master password: ");
         string password2 = IOTools::hiddenPrompt("Confirm master password: ");
         if (password1 != password2)     
-            throw runtime_error("Passwords don't match. Abboring setup.");
+            throw runtime_error("Passwords don't match. Aborting setup.");
                                                // build verifier
         char verifierBuf[crypto_pwhash_STRBYTES] = {};  
         if (crypto_pwhash_str(verifierBuf,
@@ -73,7 +73,6 @@ void Vault::setupOrUnlock()            // and stored in d_key
                                      password.c_str(), password.size()) == 0)
         {
             deriveSessionKey(password);
-            sodium_memzero(password.data(), password.size());
             cout << "Vault unlocked.\n";
             return;                                 
         }

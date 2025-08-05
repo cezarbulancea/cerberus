@@ -7,13 +7,13 @@
 #include <vector>
 
 #include "../dbHandle/dbHandle.hh"
+#include "../key/key.hh"
 
 
 class Vault
 {
     DbHandle d_db;
-    std::array<std::uint8_t, crypto_aead_xchacha20poly1305_ietf_KEYBYTES> d_key;
-    bool d_keyValid = false;
+    Key      d_key;
 
     public:
         Vault(std::string const &filename = "vault.db");
@@ -24,7 +24,7 @@ class Vault
         Vault &operator=(Vault const &other) = delete;
         Vault &operator=(Vault &&tmp)        = delete;
 
-        ~Vault();
+        ~Vault() = default;
 
         void add(std::string const &website, 
                  std::string const &userIdentifier, size_t length);

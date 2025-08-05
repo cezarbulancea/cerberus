@@ -3,7 +3,7 @@
 void Vault::add(string const &website, string const &userIdentifier,
                 size_t length)
 {
-    if (!d_keyValid)
+    if (!d_key.valid)
         throw runtime_error("The vault is locked. If you want to add an entry, "
                             "you have to unlock it first.");
 
@@ -27,7 +27,7 @@ void Vault::add(string const &website, string const &userIdentifier,
         /*ad=*/nullptr, 0,
         /*nsec=*/nullptr,
         nonce.data(),
-        d_key.data()
+        d_key.data.data()
     );
                                        // split tag from ciphertext for storage
     size_t tagLength = crypto_aead_xchacha20poly1305_ietf_ABYTES;
