@@ -2,7 +2,7 @@
 
 vector<uint8_t> Vault::loadOrCreateSalt()
 {
-    vector<uint8_t> salt{ crypto_pwhash_SALTBYTES };
+    vector<uint8_t> salt(crypto_pwhash_SALTBYTES);
 
     sqlite3_stmt *statement;
     string const sqlExtractSalt = "SELECT value FROM meta WHERE key='salt';";
@@ -28,6 +28,6 @@ vector<uint8_t> Vault::loadOrCreateSalt()
     sqlite3_step(statement);
 
     sqlite3_finalize(statement);
-    
+
     return salt;
 }
