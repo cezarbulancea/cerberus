@@ -27,11 +27,8 @@ void Vault::setupOrUnlock()            // and stored in d_key
         string password1 = hiddenPrompt("Create master password: ");
         string password2 = hiddenPrompt("Confirm master password: ");
         if (password1 != password2)     
-        {
-            cout << "Passwords do not match. Aborting setup.\n";
-            return;
-        }
-                                       // build verifier
+            throw runtime_error("Passwords don't match. Abboring setup.");
+                                               // build verifier
         char verifierBuf[crypto_pwhash_STRBYTES] = {};  
         if (crypto_pwhash_str(verifierBuf,
                               password1.c_str(), password1.size(),
@@ -85,6 +82,6 @@ void Vault::setupOrUnlock()            // and stored in d_key
         cout << "Incorrect password.\n";
     }
 
-    cout << "\nToo many failed attempts — vault remains locked.\n";
-    wipeKey();                         
+    wipeKey();
+    throw runtime_error("Too many failed attempts — vault remains locked.");                    
 }

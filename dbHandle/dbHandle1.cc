@@ -1,6 +1,6 @@
-#include "vault.ih"
+#include "dbHandle.ih"
 
-void Vault::openDatabase(string const &filename)
+DbHandle::DbHandle(string const &filename)
 {                                      // Open (or create) the database
     if (sqlite3_open(filename.c_str(), &d_db) != SQLITE_OK)
     {

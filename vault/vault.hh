@@ -5,15 +5,15 @@
 #include <cstdint>
 #include <cstring>
 #include <sodium.h>
-#include <sqlite3.h>
 #include <stdio.h>
-#include <string>
 #include <vector>
+
+#include "../dbHandle/dbHandle.hh"
 
 
 class Vault
 {
-    sqlite3 *d_db;
+    DbHandle d_db;
     std::array<std::uint8_t, crypto_aead_xchacha20poly1305_IETF_KEYBYTES> d_key;
     bool d_keyValid = false;
 
@@ -21,10 +21,10 @@ class Vault
         Vault(std::string const &filename = "vault.db");
 
         Vault(Vault const &other) = delete;
-        Vault(Vault &&tmp) noexcept;
+        Vault(Vault &&tmp)        = delete;
 
         Vault &operator=(Vault const &other) = delete;
-        Vault &operator=(Vault &&tmp) noexcept;
+        Vault &operator=(Vault &&tmp)        = delete;
 
         ~Vault();
 
@@ -32,13 +32,10 @@ class Vault
                  std::string const &userIdentifier, size_t length);
         std::string get(std::string const &website, 
                         std::string const &userIdentifier) const;
-        bool erase(std::string const &website, std::string const &userIdentifier);
-        void list();
 
         std::string hiddenPrompt(std::string const &prompt);
 
     private:
-        void openDatabase(std::string const &filename);
         void ensureSchema();
         void deriveSessionKey(std::string const &master);      
         std::vector<std::uint8_t> loadOrCreateSalt();
