@@ -18,14 +18,14 @@ void Vault::setupOrUnlock()            // and stored in d_key
 
         firstRun = false;              // existing vault confirmed
     }
-    sqlite3_finalize(statement);       
+    sqlite3_finalize(statement);
 
     if (firstRun)
     {
         cout << "No master password found - creating a new vault.\n";
                                        // prompt twice to avoid typos
-        string password1 = hiddenPrompt("Create master password: ");
-        string password2 = hiddenPrompt("Confirm master password: ");
+        string password1 = IOTools::hiddenPrompt("Create master password: ");
+        string password2 = IOTools::hiddenPrompt("Confirm master password: ");
         if (password1 != password2)     
             throw runtime_error("Passwords don't match. Abboring setup.");
                                                // build verifier
@@ -67,7 +67,7 @@ void Vault::setupOrUnlock()            // and stored in d_key
                                        // password (max 3 attempts)
     for (size_t attempts = 0; attempts != 3; ++attempts)
     {
-        string password = hiddenPrompt("Master password: ");
+        string password = IOTools::hiddenPrompt("Master password: ");
                                        // Argon2 verify — returns 0 on success
         if (crypto_pwhash_str_verify(verifier.c_str(),
                                      password.c_str(), password.size()) == 0)

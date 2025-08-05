@@ -1,6 +1,6 @@
-#include "main.ih"
-
-string promptLine(string const &message)
+#include "ioTools.ih"
+                                       // static
+string IOTools::promptLine(string const &message)
 {
     cout << message;
     string line;

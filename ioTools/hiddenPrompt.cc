@@ -1,9 +1,9 @@
-#include "vault.ih"
-
+#include "ioTools.ih"
+                                       // static
 #if defined(_WIN32)                    // ───── Windows branch ─────
 #   include <windows.h>
 #   include <conio.h>
-string Vault::hiddenPrompt(string const &prompt)
+string IOTools::hiddenPrompt(string const &prompt)
 {
     cout << prompt << flush;
 
@@ -32,7 +32,7 @@ string Vault::hiddenPrompt(string const &prompt)
 #   include <termios.h>
 #   include <unistd.h>
 #   include <stdexcept>
-string Vault::hiddenPrompt(string const &prompt)
+string IOTools::hiddenPrompt(string const &prompt)
 {
     cout << prompt << flush;
 

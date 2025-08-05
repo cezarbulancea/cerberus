@@ -1,5 +1,6 @@
 #include "vault.hh"
 #include "../passwordGenerator/passwordGenerator.hh"
+#include "../ioTools/ioTools.hh"
 
 #include <cstring>
 #include <iostream>

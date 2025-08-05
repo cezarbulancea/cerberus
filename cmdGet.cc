@@ -2,8 +2,8 @@
 
 void cmdGet(Vault &vault)
 {
-    string const website = promptLine("Website: ");
-    string const userId  = promptLine("User identifier: ");
+    string const website = IOTools::promptLine("Website: ");
+    string const userId  = IOTools::promptLine("User identifier: ");
 
     if (website.empty() || userId.empty())
     {

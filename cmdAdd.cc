@@ -10,8 +10,8 @@ namespace
 
 void cmdAdd(Vault &vault)
 {
-    string website = promptLine("Website: ");
-    string userId  = promptLine("User identifier: ");
+    string website = IOTools::promptLine("Website: ");
+    string userId  = IOTools::promptLine("User identifier: ");
 
     if (website.empty() || userId.empty())
     {

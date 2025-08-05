@@ -31,8 +31,6 @@ class Vault
         std::string get(std::string const &website, 
                         std::string const &userIdentifier) const;
 
-        std::string hiddenPrompt(std::string const &prompt);
-
     private:
         void ensureSchema();
         void deriveSessionKey(std::string const &master);      
