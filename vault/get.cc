@@ -6,7 +6,7 @@ string Vault::get(string const &website, string const &userIdentifier) const
         throw runtime_error("The vault is locked. If you want to fetch a "
                             "password, you have to unlock it first.");
 
-    sqlite3_stmt* statement = nullptr;
+    sqlite3_stmt *statement = nullptr;
     string const fetchPassSql =        // pull record
         "SELECT nonce, tag, ciphertext "
         "FROM   Vault "
@@ -53,7 +53,7 @@ string Vault::get(string const &website, string const &userIdentifier) const
         throw runtime_error("Decryption failed (tampering or wrong key)");
 
     plain.resize(plainLength);
-    string password(reinterpret_cast<char *>(plain.data()), plain.size());
+    string const password(reinterpret_cast<char *>(plain.data()), plain.size());
 
     sodium_memzero(plain.data(), plain.size());
     sodium_memzero(cipher.data(), cipher.size());

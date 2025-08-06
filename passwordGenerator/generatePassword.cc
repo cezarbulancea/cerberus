@@ -2,17 +2,17 @@
 
 string PasswordGenerator::generatePassword(size_t length)
 {
-    std::string const possibleCharacters =
+    string const possibleCharacters =
         "abcdefghijklmnopqrstuvwxyz"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "0123456789"
         "!@#$%^&*()-_=+[]{};:,.<>?/";
 
-    std::random_device randomDevice;
-    std::mt19937 generator{ randomDevice() };
-    std::uniform_int_distribution<> distribution(0, possibleCharacters.size() - 1);
+    random_device randomDevice;
+    mt19937 generator{ randomDevice() };
+    uniform_int_distribution<> distribution(0, possibleCharacters.size() - 1);
 
-    std::string password;              
+    string password;              
                                        // Should have at least a lower, 
     while (!verifyPassword(password))  // an upper, a digit and a symbol
     {
