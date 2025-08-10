@@ -13,8 +13,12 @@ vector<uint8_t> Vault::loadOrCreateSalt()
         uint8_t const *blob = static_cast<uint8_t const *>(
                                             sqlite3_column_blob(statement, 0));
         size_t numberBytes = sqlite3_column_bytes(statement, 0);
-        if (numberBytes == salt.size())
-            memcpy(salt.data(), blob, numberBytes);
+        if (numberBytes != salt.size())
+        {
+            sqlite3_finalize(statement);
+            throw runtime_error("Invalid salt size in DB");
+        }
+        memcpy(salt.data(), blob, numberBytes);
         sqlite3_finalize(statement);
         return salt;                   // existing salt
     }
