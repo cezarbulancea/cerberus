@@ -1,5 +1,0 @@
-vault/loadOrCreateSalt.cc.o: vault/loadOrCreateSalt.cc vault/vault.ih \
- vault/vault.hh vault/../dbHandle/dbHandle.hh vault/../key/key.hh \
- vault/../ioTools/ioTools.hh \
- vault/../passwordGenerator/passwordGenerator.hh \
- vault/../statement/statement.hh

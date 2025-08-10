@@ -1,3 +1,0 @@
-cmdGet.cc.o: cmdGet.cc main.ih passwordGenerator/passwordGenerator.hh \
- vault/vault.hh vault/../dbHandle/dbHandle.hh vault/../key/key.hh \
- ioTools/ioTools.hh

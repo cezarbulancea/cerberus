@@ -1,2 +1,0 @@
-ioTools/promptLine.cc.o: ioTools/promptLine.cc ioTools/ioTools.ih \
- ioTools/ioTools.hh

@@ -1,2 +1,0 @@
-dbHandle/operatorSqlite.cc.o: dbHandle/operatorSqlite.cc \
- dbHandle/dbHandle.ih dbHandle/dbHandle.hh
