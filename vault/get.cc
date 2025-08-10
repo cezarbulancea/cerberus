@@ -6,29 +6,28 @@ string Vault::get(string const &website, string const &userIdentifier) const
         throw runtime_error("The vault is locked. If you want to fetch a "
                             "password, you have to unlock it first.");
 
-    sqlite3_stmt *statement = nullptr;
+    Statement statement;
     string const fetchPassSql =        // pull record
         "SELECT nonce, tag, ciphertext "
         "FROM   Vault "
         "WHERE  Website=?1 AND UserIdentifier=?2;";
 
     if (sqlite3_prepare_v2(d_db, fetchPassSql.c_str(), -1,
-                           &statement, nullptr) != SQLITE_OK)
+                           &statement.ptr, nullptr) != SQLITE_OK)
         throw runtime_error("SQLite prepare failed: " + string(sqlite3_errmsg(d_db)));
 
-    sqlite3_bind_text(statement, 1, website.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(statement, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement.ptr, 1, website.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(statement.ptr, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
 
-    if (sqlite3_step(statement) != SQLITE_ROW)
-    {
-        sqlite3_finalize(statement);
+    if (sqlite3_step(statement.ptr) != SQLITE_ROW)
         throw runtime_error("No password stored for “" + website
                                + "” / user “" + userIdentifier + "”.");
-    }
 
-    auto blob = [&](int col) {         // extract nonce, tag and cipher
-        auto ptr = static_cast<unsigned char const *>(sqlite3_column_blob(statement, col));
-        int size = sqlite3_column_bytes(statement, col);
+    auto blob = [&](int col)           // extract nonce, tag and cipher
+    {         
+        auto ptr = static_cast<unsigned char const *>(
+                                    sqlite3_column_blob(statement.ptr, col));
+        int size = sqlite3_column_bytes(statement.ptr, col);
         return vector<uint8_t>(ptr, ptr + size);
     };
 
@@ -37,8 +36,7 @@ string Vault::get(string const &website, string const &userIdentifier) const
     vector<uint8_t> cipher= blob(2);
                                        // re-attach tag
     cipher.insert(cipher.end(), tag.begin(), tag.end());   
-
-    sqlite3_finalize(statement);       
+     
                                        // decrypt
     vector<uint8_t> plain(cipher.size());          
     unsigned long long plainLength = 0;

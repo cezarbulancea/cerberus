@@ -2,7 +2,7 @@
 
 void Vault::setup()
 {   
-    sqlite3_stmt *statement = nullptr;
+    Statement statement;
                                        // prompt twice to avoid typos
     string password1 = IOTools::hiddenPrompt("Create master password: ");
     string password2 = IOTools::hiddenPrompt("Confirm master password: ");
@@ -20,17 +20,15 @@ void Vault::setup()
     char constexpr insertVerifierSql[] =
         "INSERT INTO meta(key,value) VALUES('verifier',?1);";
 
-    sqlite3_prepare_v2(d_db, insertVerifierSql, -1, &statement, nullptr);
-    sqlite3_bind_blob(statement, 1,
-                        verifierBuf, static_cast<int>(verifierLen),
-                        SQLITE_TRANSIENT);
-    if (sqlite3_step(statement) != SQLITE_DONE)
+    sqlite3_prepare_v2(d_db, insertVerifierSql, -1, &statement.ptr, nullptr);
+    sqlite3_bind_blob(statement.ptr, 1,
+                      verifierBuf, static_cast<int>(verifierLen),
+                      SQLITE_TRANSIENT);
+    if (sqlite3_step(statement.ptr) != SQLITE_DONE)
     {
         string const message = sqlite3_errmsg(d_db);
-        sqlite3_finalize(statement);
         throw runtime_error("Storing verifier failed: " + message);
     }
-    sqlite3_finalize(statement);
                                        // derive session-key;
     deriveSessionKey(password1);       // wipes `password1` internally
 

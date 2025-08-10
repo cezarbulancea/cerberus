@@ -34,7 +34,7 @@ void Vault::add(string const &website, string const &userIdentifier,
     vector<uint8_t> tag(cipher.end() - tagLength, cipher.end());
     cipher.resize(cipher.size() - tagLength);
 
-    sqlite3_stmt *statement = nullptr;
+    Statement statement;
     string const addValuesSql = 
         "INSERT INTO Vault (Website, UserIdentifier, nonce, tag, ciphertext) "
         "VALUES (?1, ?2, ?3, ?4, ?5) "
@@ -44,22 +44,20 @@ void Vault::add(string const &website, string const &userIdentifier,
         "  ciphertext=excluded.ciphertext;";
 
     if (sqlite3_prepare_v2(d_db, addValuesSql.c_str(), 
-                           -1, &statement, nullptr) != SQLITE_OK)
+                           -1, &statement.ptr, nullptr) != SQLITE_OK)
         throw runtime_error("SQLite prepare failed: " + string(sqlite3_errmsg(d_db)));
 
-    sqlite3_bind_text (statement, 1, website.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text (statement, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_blob (statement, 3, nonce.data(), nonce.size(), SQLITE_TRANSIENT);
-    sqlite3_bind_blob (statement, 4, tag.data(), tag.size(), SQLITE_TRANSIENT);
-    sqlite3_bind_blob (statement, 5, cipher.data(), cipher.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_text (statement.ptr, 1, website.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text (statement.ptr, 2, userIdentifier.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement.ptr, 3, nonce.data(), nonce.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement.ptr, 4, tag.data(), tag.size(), SQLITE_TRANSIENT);
+    sqlite3_bind_blob (statement.ptr, 5, cipher.data(), cipher.size(), SQLITE_TRANSIENT);
 
-    if (sqlite3_step(statement) != SQLITE_DONE)
+    if (sqlite3_step(statement.ptr) != SQLITE_DONE)
     {
         string const message = sqlite3_errmsg(d_db);
-        sqlite3_finalize(statement);
         throw runtime_error("SQLite insert failed: " + message);
     }
-    sqlite3_finalize(statement);
 
     sodium_memzero(const_cast<char *>(password.data()), password.size());
     sodium_memzero(cipher.data(), cipher.size());

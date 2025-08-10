@@ -4,7 +4,7 @@ vector<uint8_t> Vault::loadOrCreateSalt()
 {
     vector<uint8_t> salt(crypto_pwhash_SALTBYTES);
 
-    sqlite3_stmt *statement;
+    sqlite3_stmt *statement = nullptr;
     string const sqlExtractSalt = "SELECT value FROM meta WHERE key='salt';";
     if (sqlite3_prepare_v2(d_db, sqlExtractSalt.c_str(), -1, &statement, nullptr)
             == SQLITE_OK &&
