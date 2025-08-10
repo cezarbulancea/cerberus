@@ -1,0 +1,2 @@
+dbHandle/destructor.cc.o: dbHandle/destructor.cc dbHandle/dbHandle.ih \
+ dbHandle/dbHandle.hh

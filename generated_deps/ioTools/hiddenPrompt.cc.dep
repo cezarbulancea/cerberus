@@ -1,0 +1,2 @@
+ioTools/hiddenPrompt.cc.o: ioTools/hiddenPrompt.cc ioTools/ioTools.ih \
+ ioTools/ioTools.hh

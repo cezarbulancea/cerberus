@@ -1,0 +1,2 @@
+statement/destructor.cc.o: statement/destructor.cc statement/statement.ih \
+ statement/statement.hh

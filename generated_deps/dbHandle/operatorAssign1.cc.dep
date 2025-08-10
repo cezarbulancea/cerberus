@@ -1,0 +1,2 @@
+dbHandle/operatorAssign1.cc.o: dbHandle/operatorAssign1.cc \
+ dbHandle/dbHandle.ih dbHandle/dbHandle.hh

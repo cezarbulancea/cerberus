@@ -1,0 +1,2 @@
+dbHandle/dbHandle1.cc.o: dbHandle/dbHandle1.cc dbHandle/dbHandle.ih \
+ dbHandle/dbHandle.hh
