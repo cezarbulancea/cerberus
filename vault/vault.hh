@@ -3,6 +3,7 @@
 
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <sodium.h>
 #include <vector>
 
@@ -25,6 +26,12 @@ class Vault
         Vault &operator=(Vault &&tmp)        = delete;
 
         ~Vault() = default;
+
+        std::optional<std::string> getVerifier() const;
+        bool isInitialized() const;
+        void setup();
+        void unlock();
+        bool verifyMaster(std::string &password);
 
         void add(std::string const &website, 
                  std::string const &userIdentifier, size_t length);

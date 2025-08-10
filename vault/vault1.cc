@@ -5,5 +5,4 @@ Vault::Vault(string const &filename)
     d_db(filename)
 {          
     ensureSchema();
-    setupOrUnlock();
 }

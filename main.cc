@@ -3,7 +3,12 @@
 int main()
 try
 {
-    Vault vault;                       // create or open vault
+    Vault vault;                       
+
+    if (vault.isInitialized())
+        vault.unlock();
+    else
+        vault.setup();
 
     for (;;)
     {
