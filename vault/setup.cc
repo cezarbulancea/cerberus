@@ -20,7 +20,9 @@ void Vault::setup()
     char constexpr insertVerifierSql[] =
         "INSERT INTO meta(key,value) VALUES('verifier',?1);";
 
-    sqlite3_prepare_v2(d_db, insertVerifierSql, -1, &statement.ptr, nullptr);
+    if (sqlite3_prepare_v2(d_db, insertVerifierSql, -1,
+                           &statement.ptr, nullptr) != SQLITE_OK)
+        throw runtime_error("SQLite prepare failed: " + string(sqlite3_errmsg(d_db)));
     sqlite3_bind_blob(statement.ptr, 1,
                       verifierBuf, static_cast<int>(verifierLen),
                       SQLITE_TRANSIENT);
