@@ -4,7 +4,6 @@
 #include <array>
 #include <cstdint>
 #include <optional>
-#include <sodium.h>
 #include <vector>
 
 #include "../key/key.hh"
@@ -32,7 +31,6 @@ class Vault
         bool isInitialized() const;
         void setup();
         void unlock();
-        bool verifyMaster(std::string &password);
 
         Secret add(std::string const &website, 
                    std::string const &userIdentifier, size_t length);
@@ -40,11 +38,10 @@ class Vault
                         std::string const &userIdentifier) const;
 
     private:
-        void ensureSchema();
-        void deriveSessionKey(std::string const &master);      
+        void deriveSessionKey(std::string &master);
+        void ensureSchema();  
         std::vector<std::uint8_t> loadOrCreateSalt();
-                                       // setup a new vault or 
-        void setupOrUnlock();          // unlock an existent one
+        bool verifyMaster(std::string &password);
         void wipeKey();
 };
 
