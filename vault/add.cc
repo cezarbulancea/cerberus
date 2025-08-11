@@ -1,16 +1,14 @@
 #include "vault.ih"
 
-void Vault::add(string const &website, string const &userIdentifier,
-                size_t length)
+Secret Vault::add(string const &website, string const &userIdentifier,
+                  size_t length)
 {
     if (!d_key.valid)
         throw runtime_error("The vault is locked. If you want to add an entry, "
                             "you have to unlock it first.");
 
     PasswordGenerator generator;       // generate a password of the given length
-    string const password = generator.generatePassword(length);
-
-    cout << "Your password is: " << password << '\n';
+    string password = generator.generatePassword(length);
 
     vector<uint8_t> nonce(crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
                                        // 24-byte random nonce
@@ -54,12 +52,10 @@ void Vault::add(string const &website, string const &userIdentifier,
     sqlite3_bind_blob (statement.ptr, 5, cipher.data(), cipher.size(), SQLITE_TRANSIENT);
 
     if (sqlite3_step(statement.ptr) != SQLITE_DONE)
-    {
-        string const message = sqlite3_errmsg(d_db);
-        throw runtime_error("SQLite insert failed: " + message);
-    }
+        throw runtime_error("SQLite insert failed: " + string(sqlite3_errmsg(d_db)));
 
-    sodium_memzero(const_cast<char *>(password.data()), password.size());
     sodium_memzero(cipher.data(), cipher.size());
     sodium_memzero(tag.data(), tag.size());
+
+    return Secret{ move(password) };
 }

@@ -21,5 +21,3 @@ void Vault::unlock()
     wipeKey();
     throw runtime_error("Too many failed attempts — vault remains locked.");
 }
-
-     

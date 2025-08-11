@@ -19,6 +19,7 @@ void cmdAdd(Vault &vault)
         return;
     }
 
-    vault.add(website, userId, PASSWORD_LENGTH);
+    Secret const password = vault.add(website, userId, PASSWORD_LENGTH);
+    cout << "Generated password:\n" << password.data() << '\n';
     cout << "✓ Stored / updated credential.\n";
 }

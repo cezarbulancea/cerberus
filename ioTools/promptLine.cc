@@ -1,8 +1,8 @@
 #include "ioTools.ih"
                                        // static
-string IOTools::promptLine(string const &message)
+string IOTools::promptLine(string const &prompt)
 {
-    cout << message;
+    cout << prompt;
     string line;
     getline(cin, line);
                                        // trim left

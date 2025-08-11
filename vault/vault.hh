@@ -7,8 +7,9 @@
 #include <sodium.h>
 #include <vector>
 
-#include "../dbHandle/dbHandle.hh"
 #include "../key/key.hh"
+#include "../dbHandle/dbHandle.hh"
+#include "../secret/secret.hh"
 
 
 class Vault
@@ -33,8 +34,8 @@ class Vault
         void unlock();
         bool verifyMaster(std::string &password);
 
-        void add(std::string const &website, 
-                 std::string const &userIdentifier, size_t length);
+        Secret add(std::string const &website, 
+                   std::string const &userIdentifier, size_t length);
         std::string get(std::string const &website, 
                         std::string const &userIdentifier) const;
 

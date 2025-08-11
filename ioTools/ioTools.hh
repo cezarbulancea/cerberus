@@ -8,7 +8,7 @@ class IOTools
     public:
         IOTools() = default;
 
-        static std::string promptLine(std::string const &message);
+        static std::string promptLine(std::string const &prompt);
         static std::string hiddenPrompt(std::string const &prompt);
 };
 
