@@ -17,12 +17,13 @@ Secret Vault::add(string const &website, string const &userIdentifier,
     vector<uint8_t> cipher(password.size() 
                            + crypto_aead_xchacha20poly1305_ietf_ABYTES);
 
+    string const ad = website + '\0' + userIdentifier;
     unsigned long long cipherLength = 0;
     crypto_aead_xchacha20poly1305_ietf_encrypt(
         cipher.data(), &cipherLength,
         reinterpret_cast<unsigned char const *>(password.data()),
         password.size(),
-        /*ad=*/nullptr, 0,
+        reinterpret_cast<unsigned char const *>(ad.data()), ad.size(),
         /*nsec=*/nullptr,
         nonce.data(),
         d_key.data.data()

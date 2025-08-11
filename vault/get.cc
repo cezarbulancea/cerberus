@@ -41,11 +41,12 @@ string Vault::get(string const &website, string const &userIdentifier) const
     vector<uint8_t> plain(cipher.size());          
     unsigned long long plainLength = 0;
 
+    string const ad = website + '\0' + userIdentifier;
     if (crypto_aead_xchacha20poly1305_ietf_decrypt(
             plain.data(), &plainLength,
             /*nsec=*/nullptr,
             cipher.data(), cipher.size(),
-            /*ad=*/nullptr, 0,
+            reinterpret_cast<unsigned char const *>(ad.data()), ad.size(),
             nonce.data(),
             d_key.data.data()) != 0)
         throw runtime_error("Decryption failed (tampering or wrong key)");
