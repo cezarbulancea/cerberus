@@ -1,6 +1,6 @@
 #include "vault.ih"
 
-void Vault::deriveSessionKey(string const &master)
+void Vault::deriveSessionKey(string &master)
 {                                      // fetch or create a random salt 
                                        // (16 bytes) stored in meta table
     vector<uint8_t> salt = loadOrCreateSalt();
@@ -15,5 +15,5 @@ void Vault::deriveSessionKey(string const &master)
         throw runtime_error("Key derivation failed");
     
     d_key.valid = true;                // mark vault unlocked 
-    sodium_memzero(const_cast<char *>(master.data()), master.size());
+    sodium_memzero(master.data(), master.size());
 }
