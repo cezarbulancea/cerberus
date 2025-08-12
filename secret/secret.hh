@@ -8,7 +8,8 @@ class Secret
     std::string d_data;
 
     public:
-        Secret(std::string const &secret);
+        Secret() = delete;
+        explicit Secret(std::string &&secret);
 
         Secret(Secret const &other) = delete;
         Secret(Secret &&tmp);

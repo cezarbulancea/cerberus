@@ -1,6 +1,6 @@
 #include "secret.ih"
 
-Secret::Secret(string const &secret)
+Secret::Secret(string &&secret)
 :
     d_data(move(secret))
 {}
