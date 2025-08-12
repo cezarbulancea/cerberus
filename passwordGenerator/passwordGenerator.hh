@@ -1,16 +1,20 @@
 #ifndef INCLUDED_PASSWORDGENERATOR_
 #define INCLUDED_PASSWORDGENERATOR_
 
+#include <sodium.h>
 #include <string>
 
 class PasswordGenerator
 {
     public:
         PasswordGenerator() = default;
-        std::string generatePassword(size_t length);
+        std::string generatePassword(size_t length) const;
 
     private:                          
-        bool verifyPassword(std::string const &password);
+        template <size_t N>
+        static char pickOne(char const (&set)[N]);
 };
 
-#endif 
+#include "pickOne.i"
+
+#endif

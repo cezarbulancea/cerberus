@@ -1,24 +1,44 @@
 #include "passwordGenerator.ih"
 
-string PasswordGenerator::generatePassword(size_t length)
+namespace
 {
-    string const possibleCharacters =
+    enum
+    {
+        CHARACTER_TYPES = 4
+    };
+
+    char constexpr LOWER[]  = "abcdefghijklmnopqrstuvwxyz";
+    char constexpr UPPER[]  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char constexpr DIGIT[]  = "0123456789";
+    char constexpr SYMBOL[] = "!@#$%^&*()-_=+[]{};:,.<>?/";
+    char constexpr ALL[]    =
         "abcdefghijklmnopqrstuvwxyz"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "0123456789"
         "!@#$%^&*()-_=+[]{};:,.<>?/";
+}
 
-    random_device randomDevice;
-    mt19937 generator{ randomDevice() };
-    uniform_int_distribution<> distribution(0, possibleCharacters.size() - 1);
+string PasswordGenerator::generatePassword(size_t length) const
+{
+    if (length < CHARACTER_TYPES)
+        throw invalid_argument("Password length must be at least 4");
 
-    string password;              
-                                       // Should have at least a lower, 
-    while (!verifyPassword(password))  // an upper, a digit and a symbol
+    string password;
+    password.reserve(length);
+                                       // each type should be represented
+    password.push_back(pickOne(LOWER));
+    password.push_back(pickOne(UPPER));
+    password.push_back(pickOne(DIGIT));
+    password.push_back(pickOne(SYMBOL));
+
+    while (password.size() < length)   // fill the rest
+        password.push_back(pickOne(ALL));
+
+                                       // shuffle with Fisher–Yates using CSPRNG
+    for (size_t idx = password.size(); idx != 1; --idx) 
     {
-        password = "";
-        for (size_t idx = 0; idx != length; ++idx)
-            password += possibleCharacters[distribution(generator)];
+        uint32_t position = randombytes_uniform(static_cast<uint32_t>(idx));
+        swap(password[idx - 1], password[position]);
     }
 
     return password;
