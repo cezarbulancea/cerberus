@@ -2,7 +2,7 @@
 
 string Vault::get(string const &website, string const &userIdentifier) const
 {
-    if (!d_key.valid)
+    if (!d_key.valid())
         throw runtime_error("The vault is locked. If you want to fetch a "
                             "password, you have to unlock it first.");
 
@@ -48,7 +48,7 @@ string Vault::get(string const &website, string const &userIdentifier) const
             cipher.data(), cipher.size(),
             reinterpret_cast<unsigned char const *>(ad.data()), ad.size(),
             nonce.data(),
-            d_key.data.data()) != 0)
+            d_key.data()) != 0)
         throw runtime_error("Decryption failed (tampering or wrong key)");
 
     plain.resize(plainLength);

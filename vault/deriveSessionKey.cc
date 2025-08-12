@@ -6,7 +6,7 @@ void Vault::deriveSessionKey(string &master)
     vector<uint8_t> salt = loadOrCreateSalt();
                                        
                                        // derive a 32-byte key with argon2-id
-    if (crypto_pwhash(d_key.data.data(), d_key.data.size(),
+    if (crypto_pwhash(d_key.data(), d_key.size(),
                       master.data(), master.size(),
                       salt.data(),
                       crypto_pwhash_OPSLIMIT_MODERATE,
@@ -14,6 +14,6 @@ void Vault::deriveSessionKey(string &master)
                       crypto_pwhash_ALG_DEFAULT) != 0)
         throw runtime_error("Key derivation failed");
     
-    d_key.valid = true;                // mark vault unlocked 
+    d_key.setValid(true);              // mark vault unlocked 
     sodium_memzero(master.data(), master.size());
 }
