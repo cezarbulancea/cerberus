@@ -10,7 +10,24 @@
 #include "../dbHandle/dbHandle.hh"
 #include "../secret/secret.hh"
 
-
+/**
+ * \brief Persistent secrets container backed by SQLite with AEAD encryption.
+ *
+ * This class is responsible for:
+ * 
+ *  - Creating and maintaining the SQLite schema (a `Vault` table for entries
+ *    and a `meta` table for KDF salt + password verifier).
+ * 
+ *  - Deriving a per-session encryption key from the *master password* using
+ *    libsodium's Argon2id (crypto_pwhash) and a stored random salt.
+ * 
+ *  - Encrypting newly generated passwords with XChaCha20-Poly1305 (IETF) and
+ *    authenticated associated data (AAD) set to `website + '\0' + userIdentifier`.
+ * 
+ *  - Decrypting stored entries after the vault is unlocked.
+ * 
+ *  - Zeroizing sensitive material in memory where feasible.
+ */
 class Vault
 {
     DbHandle d_db;                     // RAII handle for the sqlite db connection
