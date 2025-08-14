@@ -1,8 +1,8 @@
 #include "vault.ih"
 
 void Vault::ensureSchema()
-{
-    string const sqlCommand =          // SQL command to create the table
+{                                      // Table for the encrypted entries; 
+    string const sqlCommand =          // (Website, UserIdentifier) pair is unique
         "CREATE TABLE IF NOT EXISTS Vault (\n"
         "    Website        varchar(255) NOT NULL,\n"
         "    UserIdentifier varchar(255) NOT NULL,\n"
@@ -11,8 +11,8 @@ void Vault::ensureSchema()
         "    ciphertext     blob NOT NULL\n,"
         "    UNIQUE (Website, UserIdentifier)\n"
         ");";
-
-    string const sqlMeta = 
+                                       // Meta table for KDF salt and 
+    string const sqlMeta =             // password verifier
         "CREATE TABLE IF NOT EXISTS meta (\n"
         "   Key varchar(255) PRIMARY KEY,\n"
         "   Value blob NOT NULL\n"

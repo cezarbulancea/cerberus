@@ -15,8 +15,8 @@ Secret Vault::add(string const &website, string const &userIdentifier,
     randombytes_buf(nonce.data(), nonce.size());    
                                        // cipher = password + 16-byte tag
     vector<uint8_t> cipher(password.size() 
-                           + crypto_aead_xchacha20poly1305_ietf_ABYTES);
-
+                           + crypto_aead_xchacha20poly1305_ietf_ABYTES);                       
+                                       // encrypt in-place into `cipher`
     string const ad = website + '\0' + userIdentifier;
     unsigned long long cipherLength = 0;
     crypto_aead_xchacha20poly1305_ietf_encrypt(
