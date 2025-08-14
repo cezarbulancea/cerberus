@@ -1,6 +1,6 @@
 # Cerberus
 
-Cerberus is a command-line password manager written in modern C++. It securely stores credentials in an encrypted SQLite database, using strong cryptography and a simple, user-friendly interface.
+Cerberus is a command-line password manager written in C++. It stores credentials in an encrypted SQLite database, using strong cryptography and a simple, user-friendly interface.
 
 ## Features
 
@@ -31,7 +31,7 @@ Commands:  add   get   quit
 > add
 Website: example.com
 User identifier: alice
-Your password is: [displayed password]
+Generated password: [displayed password]
 ✓ Stored / updated credential.
 > get
 Website: example.com
@@ -70,6 +70,8 @@ make clean
 - `ioTools/` — Input/output utilities (including hidden password prompts)
 - `dbHandle/` — SQLite database management
 - `key/` — Session key management
+- `secret/` — RAII wrapper for password
+- `statement/` — RAII wrapper for sqlite statement
 
 ## License
 
